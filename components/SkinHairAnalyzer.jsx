@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import {
   Camera, Upload, Sparkles, Droplet, Sun, Wind, ShieldCheck,
   ChevronRight, ChevronLeft, RotateCcw, AlertTriangle, Loader2,
-  CheckCircle2, Info, ScanFace, Scissors,
+  CheckCircle2, Info, ScanFace, Scissors, X,
 } from "lucide-react";
 
 /**
@@ -217,7 +217,70 @@ export default function SkinHairAnalyzer() {
   const [qIndex, setQIndex] = useState(0);
   const [result, setResult] = useState(null);
   const [error, setError] = useState(null);
+  const [cameraOn, setCameraOn] = useState(false);
+  const [cameraError, setCameraError] = useState(null);
   const fileRef = useRef(null);
+  const videoRef = useRef(null);
+  const streamRef = useRef(null);
+
+  // Stop the webcam stream whenever the camera closes or the component unmounts.
+  function stopCamera() {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    }
+    setCameraOn(false);
+  }
+
+  useEffect(() => () => stopCamera(), []);
+
+  async function startCamera() {
+    setCameraError(null);
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setCameraError("Your browser doesn't support camera access. Please upload a photo instead.");
+      return;
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 1280 } },
+        audio: false,
+      });
+      streamRef.current = stream;
+      setCameraOn(true);
+      // Attach after render so the <video> element exists.
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play().catch(() => {});
+        }
+      }, 0);
+    } catch (err) {
+      if (err?.name === "NotAllowedError") {
+        setCameraError("Camera permission was denied. Allow access in your browser, or upload a photo instead.");
+      } else if (err?.name === "NotFoundError") {
+        setCameraError("No camera found. Please upload a photo instead.");
+      } else {
+        setCameraError("Couldn't start the camera. Please upload a photo instead.");
+      }
+    }
+  }
+
+  function capturePhoto() {
+    const video = videoRef.current;
+    if (!video) return;
+    const w = video.videoWidth || 720;
+    const h = video.videoHeight || 720;
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0, w, h);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.92);
+    const base64 = dataUrl.split(",")[1];
+    setImageData({ dataUrl, base64, mediaType: "image/jpeg" });
+    setError(null);
+    stopCamera();
+  }
 
   const questions = mode ? QUESTIONS[mode] : [];
   const currentQ = questions[qIndex];
@@ -227,6 +290,8 @@ export default function SkinHairAnalyzer() {
   );
 
   function reset() {
+    stopCamera();
+    setCameraError(null);
     setStep("intro");
     setMode(null);
     setImageData(null);
@@ -375,7 +440,7 @@ export default function SkinHairAnalyzer() {
           {step === "upload" && (
             <div className="space-y-4">
               <h2 className="text-center text-base font-semibold text-gray-800">
-                Upload a clear, well-lit photo
+                Add a clear, well-lit photo
               </h2>
               <input
                 ref={fileRef}
@@ -384,36 +449,86 @@ export default function SkinHairAnalyzer() {
                 onChange={handleFile}
                 className="hidden"
               />
-              <button
-                onClick={() => fileRef.current?.click()}
-                className="flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 py-10 transition hover:border-violet-300 hover:bg-violet-50"
-              >
-                {imageData ? (
-                  <img
-                    src={imageData.dataUrl}
-                    alt="preview"
-                    className="h-40 w-40 rounded-xl object-cover shadow"
-                  />
-                ) : (
-                  <>
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-100">
-                      <Camera className="h-6 w-6 text-violet-500" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-600">
-                      Tap to upload or take a photo
-                    </span>
-                    <span className="text-xs text-gray-400">JPG or PNG</span>
-                  </>
-                )}
-              </button>
 
-              {imageData && (
-                <button
-                  onClick={() => fileRef.current?.click()}
-                  className="flex w-full items-center justify-center gap-1 text-xs font-medium text-violet-600 hover:underline"
-                >
-                  <Upload className="h-3.5 w-3.5" /> Choose a different photo
-                </button>
+              {/* Live camera view */}
+              {cameraOn ? (
+                <div className="space-y-3">
+                  <div className="relative overflow-hidden rounded-2xl bg-black">
+                    <video
+                      ref={videoRef}
+                      playsInline
+                      muted
+                      className="h-72 w-full object-cover"
+                    />
+                    <button
+                      onClick={stopCamera}
+                      className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
+                      aria-label="Close camera"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={stopCamera}
+                      className="flex items-center justify-center gap-1 rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={capturePhoto}
+                      className="flex flex-1 items-center justify-center gap-1 rounded-xl bg-violet-600 py-3 text-sm font-semibold text-white transition hover:bg-violet-700"
+                    >
+                      <Camera className="h-4 w-4" /> Capture photo
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Preview / upload drop zone */}
+                  <button
+                    onClick={() => fileRef.current?.click()}
+                    className="flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 py-10 transition hover:border-violet-300 hover:bg-violet-50"
+                  >
+                    {imageData ? (
+                      <img
+                        src={imageData.dataUrl}
+                        alt="preview"
+                        className="h-40 w-40 rounded-xl object-cover shadow"
+                      />
+                    ) : (
+                      <>
+                        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-100">
+                          <Upload className="h-6 w-6 text-violet-500" />
+                        </div>
+                        <span className="text-sm font-medium text-gray-600">
+                          Click to upload a photo
+                        </span>
+                        <span className="text-xs text-gray-400">JPG or PNG</span>
+                      </>
+                    )}
+                  </button>
+
+                  {/* Action row: upload + use camera */}
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => fileRef.current?.click()}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-gray-200 py-2.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+                    >
+                      <Upload className="h-3.5 w-3.5" /> {imageData ? "Choose another" : "Upload photo"}
+                    </button>
+                    <button
+                      onClick={startCamera}
+                      className="flex flex-1 items-center justify-center gap-1.5 rounded-xl border border-gray-200 py-2.5 text-xs font-medium text-gray-600 hover:bg-gray-50"
+                    >
+                      <Camera className="h-3.5 w-3.5" /> Use camera
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {cameraError && (
+                <p className="text-center text-xs text-rose-500">{cameraError}</p>
               )}
 
               <div className="flex items-start gap-2 rounded-xl bg-gray-50 p-3 text-xs text-gray-500">
@@ -428,13 +543,16 @@ export default function SkinHairAnalyzer() {
 
               <div className="flex gap-2">
                 <button
-                  onClick={() => setStep("mode")}
+                  onClick={() => {
+                    stopCamera();
+                    setStep("mode");
+                  }}
                   className="flex items-center justify-center gap-1 rounded-xl border border-gray-200 px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-50"
                 >
                   <ChevronLeft className="h-4 w-4" /> Back
                 </button>
                 <button
-                  disabled={!imageData}
+                  disabled={!imageData || cameraOn}
                   onClick={() => {
                     setQIndex(0);
                     setStep("quiz");
