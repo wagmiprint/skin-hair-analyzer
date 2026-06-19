@@ -1,10 +1,25 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { ArrowRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import Image from "next/image"
 
+const heroImages = [
+  { src: "/images/hero-main.jpg", alt: "Woman with healthy skin and hair" },
+  { src: "/images/hero-main-male.png", alt: "Man with healthy skin and hair" },
+]
+
 export function Hero() {
+  const [activeImage, setActiveImage] = useState(0)
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveImage((prev) => (prev + 1) % heroImages.length)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <section className="relative min-h-screen">
       {/* Full-width hero with split layout */}
@@ -78,13 +93,18 @@ export function Hero() {
 
         {/* Right image */}
         <div className="relative order-1 lg:order-2 h-[45vh] sm:h-[50vh] lg:h-auto lg:min-h-screen overflow-hidden">
-          <Image
-            src="/images/hero-main.jpg"
-            alt="Person with healthy skin and hair"
-            fill
-            className="object-cover object-center"
-            priority
-          />
+          {heroImages.map((image, index) => (
+            <Image
+              key={image.src}
+              src={image.src}
+              alt={image.alt}
+              fill
+              className={`object-cover object-center transition-opacity duration-1000 ease-in-out ${
+                activeImage === index ? "opacity-100" : "opacity-0"
+              }`}
+              priority={index === 0}
+            />
+          ))}
           {/* Overlay gradient for mobile */}
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background lg:hidden" />
           {/* Left edge gradient for desktop */}
