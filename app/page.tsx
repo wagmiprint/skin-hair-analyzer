@@ -6,6 +6,7 @@ import { Pricing } from "@/components/pricing"
 import { Testimonials } from "@/components/testimonials"
 import { CTA } from "@/components/cta"
 import { FAQ } from "@/components/faq"
+import { KitShowcase } from "@/components/kit-showcase"
 import { Footer } from "@/components/footer"
 
 export default function Home() {
@@ -19,6 +20,7 @@ export default function Home() {
       <Pricing />
       <FAQ />
       <CTA />
+      <KitShowcase />
       <Footer />
     </main>
   )
