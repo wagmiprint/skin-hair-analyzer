@@ -79,14 +79,14 @@ export function Hero() {
                     Free AI Assessment
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-3xl w-[95vw] p-0 overflow-hidden gap-0">
+                <DialogContent className="max-w-md w-[95vw] p-0 overflow-hidden gap-0">
                   <DialogHeader className="px-6 py-4 border-b border-border">
                     <DialogTitle className="font-serif font-medium">Free AI Assessment</DialogTitle>
                   </DialogHeader>
                   <iframe
                     src="https://scan.eradna.com/"
                     title="Era Free AI Assessment"
-                    className="w-full h-[70vh] border-0"
+                    className="w-full h-[560px] max-h-[75vh] border-0"
                   />
                 </DialogContent>
               </Dialog>
