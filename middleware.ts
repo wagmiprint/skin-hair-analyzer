@@ -20,6 +20,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   // Run on all routes except Next internals, the favicon, the gate page,
-  // and the gate API endpoint.
-  matcher: ["/((?!_next/|favicon.ico|gate|api/gate).*)"],
+  // the gate API endpoint, and static assets (any path with a file extension,
+  // e.g. /images/*.png) so the gate screen can load its own assets.
+  matcher: ["/((?!_next/|favicon.ico|gate|api/gate|.*\\..*).*)"],
 }

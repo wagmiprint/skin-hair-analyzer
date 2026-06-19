@@ -43,18 +43,18 @@ function GateForm() {
     <div className="w-full max-w-sm">
       <div className="flex flex-col items-center text-center">
         <Image
-          src="/images/era-logo.png"
+          src="/images/era-logo-light.png"
           alt="Era"
-          width={120}
-          height={40}
+          width={160}
+          height={56}
           priority
-          className="h-8 w-auto invert"
+          className="h-12 w-auto"
         />
         <p className="mt-8 text-xs font-medium uppercase tracking-[0.2em] text-neutral-400">
           Private Preview
         </p>
         <h1 className="mt-3 text-2xl font-serif font-medium text-neutral-50 text-balance">
-          This site is password protected
+          Coming soon
         </h1>
         <p className="mt-3 text-sm leading-relaxed text-neutral-400">
           Enter the access password to continue to the preview.
