@@ -1,8 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { ArrowRight, Play } from "lucide-react"
+import { ArrowRight, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import Image from "next/image"
 
 const heroImages = [
@@ -63,12 +70,26 @@ export function Hero() {
                 Get Your DNA Kit
                 <ArrowRight className="h-5 w-5" />
               </Button>
-              <Button variant="ghost" size="lg" className="gap-2 h-14 text-base text-muted-foreground hover:text-foreground">
-                <div className="w-10 h-10 rounded-full border-2 border-current flex items-center justify-center">
-                  <Play className="h-4 w-4 ml-0.5" />
-                </div>
-                Watch How It Works
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="ghost" size="lg" className="gap-2 h-14 text-base text-muted-foreground hover:text-foreground">
+                    <div className="w-10 h-10 rounded-full border-2 border-current flex items-center justify-center">
+                      <Sparkles className="h-4 w-4" />
+                    </div>
+                    Free AI Assessment
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-3xl w-[95vw] p-0 overflow-hidden gap-0">
+                  <DialogHeader className="px-6 py-4 border-b border-border">
+                    <DialogTitle className="font-serif font-medium">Free AI Assessment</DialogTitle>
+                  </DialogHeader>
+                  <iframe
+                    src="https://scan.eradna.com/"
+                    title="Era Free AI Assessment"
+                    className="w-full h-[70vh] border-0"
+                  />
+                </DialogContent>
+              </Dialog>
             </div>
 
             {/* Trust indicators */}
