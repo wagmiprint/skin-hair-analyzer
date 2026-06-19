@@ -83,7 +83,7 @@ export function Header() {
 
           {/* CTA Buttons */}
           <div className="hidden lg:flex lg:items-center lg:gap-4">
-            <Button variant="ghost" className="text-foreground/70 hover:text-foreground">
+            <Button variant="outline" className="bg-background text-foreground">
               Log In
             </Button>
             <Button className="gap-2">
