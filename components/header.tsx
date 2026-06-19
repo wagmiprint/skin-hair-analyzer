@@ -26,19 +26,26 @@ export function Header() {
         ? "bg-background/95 backdrop-blur-md border-b border-border shadow-sm" 
         : "bg-transparent"
     )}>
+      {/* Logo - pinned to the left edge of the page */}
+      <Link
+        href="/"
+        className="fixed top-0 left-6 lg:left-8 z-[60] flex h-20 items-center"
+        aria-label="Era home"
+      >
+        <Image
+          src="/images/era-logo.png"
+          alt="Era"
+          width={120}
+          height={40}
+          priority
+          className="h-9 w-auto"
+        />
+      </Link>
+
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <nav className="flex h-20 items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex-none" aria-label="Era home">
-            <Image
-              src="/images/era-logo.png"
-              alt="Era"
-              width={120}
-              height={40}
-              priority
-              className="h-9 w-auto"
-            />
-          </Link>
+          {/* Spacer to reserve room for the fixed logo */}
+          <div className="flex-none h-9 w-[110px]" aria-hidden="true" />
 
           {/* Desktop Navigation */}
           <div className="hidden lg:flex lg:items-center lg:gap-10">
