@@ -72,7 +72,7 @@ export function Hero() {
               </Button>
               <Dialog>
                 <DialogTrigger asChild>
-                  <Button variant="ghost" size="lg" className="gap-2 h-14 text-base text-muted-foreground hover:text-foreground">
+                  <Button variant="outline" size="lg" className="gap-2 h-14 px-8 text-base border-2 text-foreground hover:bg-muted">
                     <div className="w-10 h-10 rounded-full border-2 border-current flex items-center justify-center">
                       <Sparkles className="h-4 w-4" />
                     </div>
