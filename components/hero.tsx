@@ -99,7 +99,7 @@ export function Hero() {
               src={image.src}
               alt={image.alt}
               fill
-              className={`object-cover object-center transition-opacity duration-1000 ease-in-out ${
+              className={`object-cover object-center transition-opacity duration-[2000ms] ease-in-out ${
                 activeImage === index ? "opacity-100" : "opacity-0"
               }`}
               priority={index === 0}
