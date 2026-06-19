@@ -4,6 +4,13 @@ import type { NextRequest } from "next/server"
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // Only gate the live production site (eradna.com). In the v0 preview,
+  // local dev, and preview deployments, let every request through so the
+  // real site can be worked on without the password.
+  if (process.env.VERCEL_ENV !== "production") {
+    return NextResponse.next()
+  }
+
   const accessCookie = request.cookies.get("eradna_access")?.value
   const expectedToken = process.env.SITE_ACCESS_TOKEN
 
